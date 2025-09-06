@@ -36,7 +36,11 @@ fi
 
 # Install dependencies
 echo "📦 Installing dependencies..."
-npm ci --only=production
+npm ci --omit=dev --ignore-scripts
+
+# Install express for webhook server
+echo "📦 Installing webhook dependencies..."
+npm install express
 
 # Build the application
 echo "🔨 Building application..."
