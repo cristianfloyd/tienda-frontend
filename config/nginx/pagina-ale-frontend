@@ -1,0 +1,107 @@
+# Nginx configuration for pagina-ale-frontend
+# Place this file in: /etc/nginx/sites-available/pagina-ale-frontend
+# Then create symlink: sudo ln -s /etc/nginx/sites-available/pagina-ale-frontend /etc/nginx/sites-enabled/
+
+server {
+    listen 80;
+    server_name tienda.cristianarenas.com www.tienda.cristianarenas.com;
+
+    # Redirect all HTTP requests to HTTPS
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name tienda.cristianarenas.com www.tienda.cristianarenas.com;
+
+    # SSL Configuration (will be configured by Certbot)
+    # ssl_certificate /etc/letsencrypt/live/tienda.cristianarenas.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/tienda.cristianarenas.com/privkey.pem;
+    # include /etc/letsencrypt/options-ssl-nginx.conf;
+    # ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied expired no-cache no-store private must-revalidate auth;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        text/javascript
+        application/x-javascript
+        application/xml+rss
+        application/javascript
+        application/json
+        image/svg+xml;
+
+    # Main application (Next.js on port 3001)
+    location / {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 86400;
+        
+        # Handle Next.js hot reloading in development
+        proxy_set_header Accept-Encoding gzip;
+    }
+
+    # GitHub webhook endpoint (port 3002)
+    location /webhook {
+        proxy_pass http://localhost:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # Security for webhook
+        allow 140.82.112.0/20;  # GitHub webhook IPs
+        allow 185.199.108.0/22; # GitHub webhook IPs
+        allow 192.30.252.0/22;  # GitHub webhook IPs
+        deny all;
+    }
+
+    # Static assets caching
+    location /_next/static/ {
+        proxy_pass http://localhost:3001;
+        proxy_set_header Host $host;
+        expires 365d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Favicon and other static files
+    location ~* \.(ico|css|js|gif|jpeg|jpg|png|woff|woff2|ttf|svg|eot)$ {
+        proxy_pass http://localhost:3001;
+        proxy_set_header Host $host;
+        expires 30d;
+        add_header Cache-Control "public";
+    }
+
+    # Security: Block access to sensitive files
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    location ~* \.(env|log)$ {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+}
