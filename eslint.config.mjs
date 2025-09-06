@@ -38,6 +38,14 @@ const eslintConfig = [
       "out/**",
     ],
   },
+  // Configuration files - allow require() and console
+  {
+    files: ["*.config.{js,mjs}", "scripts/**/*.js", "jest.setup.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+      "no-console": "off",
+    },
+  },
 ];
 
 export default eslintConfig;
