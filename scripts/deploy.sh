@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# Deployment script for pagina-ale-frontend
+# Deployment script for tienda-frontend
 # Usage: ./scripts/deploy.sh
 
 set -e
 
 # Configuration
-PROJECT_NAME="pagina-ale-frontend"
+PROJECT_NAME="tienda-frontend"
 DEPLOY_PATH="/var/www/$PROJECT_NAME"
-REPO_URL="https://github.com/YOUR_USERNAME/$PROJECT_NAME.git"  # Cambiar por tu repo real
+REPO_URL="https://github.com/cristianfloyd/tienda-frontend.git"  # Cambiar por tu repo real
 NODE_ENV="production"
 PORT=3001
 
