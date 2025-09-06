@@ -26,9 +26,12 @@ export class WooCommerceAPI {
     this.auth = btoa(`${consumerKey}:${consumerSecret}`);
   }
 
-  private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  private async request<T>(
+    endpoint: string,
+    options?: RequestInit
+  ): Promise<T> {
     const url = `${this.baseUrl}/wp-json/wc/v3${endpoint}`;
-    
+
     const response = await fetch(url, {
       headers: {
         "Content-Type": "application/json",
@@ -67,7 +70,7 @@ export class WooCommerceAPI {
     return this.request(`/orders?${searchParams}`);
   }
 
-  async createOrder(orderData: any) {
+  async createOrder(orderData: Record<string, unknown>) {
     return this.request("/orders", {
       method: "POST",
       body: JSON.stringify(orderData),

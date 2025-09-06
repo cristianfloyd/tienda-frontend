@@ -3,14 +3,13 @@
  * Used to validate API connections and response formats
  */
 
-import { wpAPI } from './wordpress-api';
-import { wcAPI } from './woocommerce-api';
-import type { WordPressPost, WooCommerceProduct } from '../types';
+import { wpAPI } from "./wordpress-api";
+import { wcAPI } from "./woocommerce-api";
 
 interface APITestResult {
   success: boolean;
   message: string;
-  data?: any;
+  data?: Record<string, unknown>;
   error?: string;
 }
 
@@ -20,33 +19,35 @@ interface APITestResult {
 export async function testWordPressAPI(): Promise<APITestResult> {
   try {
     // Test basic connectivity
-    const posts = await wpAPI.getPosts({ per_page: '1' });
-    
+    const posts = await wpAPI.getPosts({ per_page: "1" });
+
     if (!Array.isArray(posts)) {
       return {
         success: false,
-        message: 'WordPress API: Invalid response format - expected array',
-        error: 'Response is not an array'
+        message: "WordPress API: Invalid response format - expected array",
+        error: "Response is not an array",
       };
     }
 
     return {
       success: true,
-      message: 'WordPress API: Connection successful',
+      message: "WordPress API: Connection successful",
       data: {
         postsCount: posts.length,
-        samplePost: posts[0] ? {
-          id: posts[0].id,
-          title: posts[0].title?.rendered,
-          status: posts[0].status
-        } : null
-      }
+        samplePost: posts[0]
+          ? {
+              id: posts[0].id,
+              title: posts[0].title?.rendered,
+              status: posts[0].status,
+            }
+          : null,
+      },
     };
   } catch (error) {
     return {
       success: false,
-      message: 'WordPress API: Connection failed',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: "WordPress API: Connection failed",
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -57,34 +58,36 @@ export async function testWordPressAPI(): Promise<APITestResult> {
 export async function testWooCommerceAPI(): Promise<APITestResult> {
   try {
     // Test WooCommerce API authentication
-    const products = await wcAPI.getProducts({ per_page: '1' });
-    
+    const products = await wcAPI.getProducts({ per_page: "1" });
+
     if (!Array.isArray(products)) {
       return {
         success: false,
-        message: 'WooCommerce API: Invalid response format - expected array',
-        error: 'Response is not an array'
+        message: "WooCommerce API: Invalid response format - expected array",
+        error: "Response is not an array",
       };
     }
 
     return {
       success: true,
-      message: 'WooCommerce API: Authentication and connection successful',
+      message: "WooCommerce API: Authentication and connection successful",
       data: {
         productsCount: products.length,
-        sampleProduct: products[0] ? {
-          id: products[0].id,
-          name: products[0].name,
-          price: products[0].price,
-          status: products[0].status
-        } : null
-      }
+        sampleProduct: products[0]
+          ? {
+              id: products[0].id,
+              name: products[0].name,
+              price: products[0].price,
+              status: products[0].status,
+            }
+          : null,
+      },
     };
   } catch (error) {
     return {
       success: false,
-      message: 'WooCommerce API: Authentication or connection failed',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: "WooCommerce API: Authentication or connection failed",
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -96,24 +99,24 @@ export async function testCORSConfiguration(): Promise<APITestResult> {
   try {
     const wpResult = await testWordPressAPI();
     const wcResult = await testWooCommerceAPI();
-    
+
     if (wpResult.success && wcResult.success) {
       return {
         success: true,
-        message: 'CORS: Frontend-backend communication working correctly'
+        message: "CORS: Frontend-backend communication working correctly",
       };
     }
 
     return {
       success: false,
-      message: 'CORS: Configuration issues detected',
-      error: `WordPress: ${wpResult.success ? 'OK' : 'Failed'}, WooCommerce: ${wcResult.success ? 'OK' : 'Failed'}`
+      message: "CORS: Configuration issues detected",
+      error: `WordPress: ${wpResult.success ? "OK" : "Failed"}, WooCommerce: ${wcResult.success ? "OK" : "Failed"}`,
     };
   } catch (error) {
     return {
       success: false,
-      message: 'CORS: Unable to test configuration',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: "CORS: Unable to test configuration",
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -125,7 +128,7 @@ export async function validateAPIResponseFormat(): Promise<APITestResult> {
   try {
     const [wpResult, wcResult] = await Promise.all([
       testWordPressAPI(),
-      testWooCommerceAPI()
+      testWooCommerceAPI(),
     ]);
 
     const validationResults: string[] = [];
@@ -133,45 +136,51 @@ export async function validateAPIResponseFormat(): Promise<APITestResult> {
     // Validate WordPress response format
     if (wpResult.success && wpResult.data?.samplePost) {
       const post = wpResult.data.samplePost;
-      const hasRequiredFields = typeof post.id === 'number' && 
-                               typeof post.title === 'string' && 
-                               typeof post.status === 'string';
-      
+      const hasRequiredFields =
+        typeof post.id === "number" &&
+        typeof post.title === "string" &&
+        typeof post.status === "string";
+
       if (hasRequiredFields) {
-        validationResults.push('WordPress response format: ✓ Valid');
+        validationResults.push("WordPress response format: ✓ Valid");
       } else {
-        validationResults.push('WordPress response format: ✗ Invalid structure');
+        validationResults.push(
+          "WordPress response format: ✗ Invalid structure"
+        );
       }
     }
 
     // Validate WooCommerce response format
     if (wcResult.success && wcResult.data?.sampleProduct) {
       const product = wcResult.data.sampleProduct;
-      const hasRequiredFields = typeof product.id === 'number' && 
-                               typeof product.name === 'string' && 
-                               typeof product.status === 'string';
-      
+      const hasRequiredFields =
+        typeof product.id === "number" &&
+        typeof product.name === "string" &&
+        typeof product.status === "string";
+
       if (hasRequiredFields) {
-        validationResults.push('WooCommerce response format: ✓ Valid');
+        validationResults.push("WooCommerce response format: ✓ Valid");
       } else {
-        validationResults.push('WooCommerce response format: ✗ Invalid structure');
+        validationResults.push(
+          "WooCommerce response format: ✗ Invalid structure"
+        );
       }
     }
 
     return {
       success: validationResults.length > 0,
-      message: 'API Response Format Validation Results',
+      message: "API Response Format Validation Results",
       data: {
         results: validationResults,
         wpTest: wpResult,
-        wcTest: wcResult
-      }
+        wcTest: wcResult,
+      },
     };
   } catch (error) {
     return {
       success: false,
-      message: 'API response validation failed',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: "API response validation failed",
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -189,13 +198,13 @@ export async function runAllAPITests(): Promise<{
     testWordPressAPI(),
     testWooCommerceAPI(),
     testCORSConfiguration(),
-    validateAPIResponseFormat()
+    validateAPIResponseFormat(),
   ]);
 
   return {
     wordpress,
     woocommerce,
     cors,
-    validation
+    validation,
   };
 }
