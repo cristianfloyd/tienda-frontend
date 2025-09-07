@@ -10,6 +10,22 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  // Global ignores
+  {
+    ignores: [
+      "**/node_modules/**",
+      "**/.next/**",
+      "**/out/**",
+      "**/build/**",
+      "**/dist/**",
+      "next-env.d.ts",
+      ".next/**",
+      "build/**",
+      "out/**",
+      ".next/types/**",
+      ".next/build/**",
+    ],
+  },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     rules: {
@@ -26,17 +42,6 @@ const eslintConfig = [
       "prefer-const": "error",
       "no-var": "error",
     },
-    ignores: [
-      "**/node_modules/**",
-      "**/.next/**",
-      "**/out/**",
-      "**/build/**",
-      "**/dist/**",
-      "next-env.d.ts",
-      ".next/**",
-      "build/**",
-      "out/**",
-    ],
   },
   // Configuration files - allow require() and console
   {

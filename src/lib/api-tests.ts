@@ -5,6 +5,8 @@
 
 import { wpAPI } from "./wordpress-api";
 import { wcAPI } from "./woocommerce-api";
+import type { WPPost } from "../types/wordpress";
+import type { WCProduct } from "../types/woocommerce";
 
 interface APITestResult {
   success: boolean;
@@ -19,7 +21,7 @@ interface APITestResult {
 export async function testWordPressAPI(): Promise<APITestResult> {
   try {
     // Test basic connectivity
-    const posts = await wpAPI.getPosts({ per_page: "1" });
+    const posts = (await wpAPI.getPosts({ per_page: "1" })) as WPPost[];
 
     if (!Array.isArray(posts)) {
       return {
@@ -58,7 +60,9 @@ export async function testWordPressAPI(): Promise<APITestResult> {
 export async function testWooCommerceAPI(): Promise<APITestResult> {
   try {
     // Test WooCommerce API authentication
-    const products = await wcAPI.getProducts({ per_page: "1" });
+    const products = (await wcAPI.getProducts({
+      per_page: "1",
+    })) as WCProduct[];
 
     if (!Array.isArray(products)) {
       return {
@@ -135,7 +139,11 @@ export async function validateAPIResponseFormat(): Promise<APITestResult> {
 
     // Validate WordPress response format
     if (wpResult.success && wpResult.data?.samplePost) {
-      const post = wpResult.data.samplePost;
+      const post = wpResult.data.samplePost as {
+        id: number;
+        title: string;
+        status: string;
+      };
       const hasRequiredFields =
         typeof post.id === "number" &&
         typeof post.title === "string" &&
@@ -152,7 +160,11 @@ export async function validateAPIResponseFormat(): Promise<APITestResult> {
 
     // Validate WooCommerce response format
     if (wcResult.success && wcResult.data?.sampleProduct) {
-      const product = wcResult.data.sampleProduct;
+      const product = wcResult.data.sampleProduct as {
+        id: number;
+        name: string;
+        status: string;
+      };
       const hasRequiredFields =
         typeof product.id === "number" &&
         typeof product.name === "string" &&

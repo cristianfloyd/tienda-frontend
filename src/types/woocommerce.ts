@@ -114,7 +114,15 @@ export interface WCOrder {
   order_key: string;
   created_via: string;
   version: string;
-  status: "pending" | "processing" | "on-hold" | "completed" | "cancelled" | "refunded" | "failed" | "trash";
+  status:
+    | "pending"
+    | "processing"
+    | "on-hold"
+    | "completed"
+    | "cancelled"
+    | "refunded"
+    | "failed"
+    | "trash";
   currency: string;
   date_created: string;
   date_created_gmt: string;
@@ -181,6 +189,12 @@ export interface WCOrderLineItem {
   sku: string;
   price: number;
 }
+
+// Legacy aliases for backward compatibility
+export type WooCommerceProduct = WCProduct;
+export type WooCommerceCategory = WCProductCategory;
+export type WooCommerceOrder = WCOrder;
+export type WooCommerceCustomer = WCCustomer;
 
 export interface WCCustomer {
   id: number;

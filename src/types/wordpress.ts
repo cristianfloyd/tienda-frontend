@@ -71,6 +71,11 @@ export interface WPUser {
   meta: any[];
 }
 
+// Legacy aliases for backward compatibility
+export type WordPressPost = WPPost;
+export type WordPressCategory = WPCategory;
+export type WordPressUser = WPUser;
+
 export interface WPMedia {
   id: number;
   date: string;
@@ -104,13 +109,16 @@ export interface WPMedia {
     width: number;
     height: number;
     file: string;
-    sizes: Record<string, {
-      file: string;
-      width: number;
-      height: number;
-      mime_type: string;
-      source_url: string;
-    }>;
+    sizes: Record<
+      string,
+      {
+        file: string;
+        width: number;
+        height: number;
+        mime_type: string;
+        source_url: string;
+      }
+    >;
   };
   source_url: string;
 }
