@@ -91,31 +91,50 @@ Después de cada despliegue, el script verificará:
 
 ## 🚨 Solución de Problemas
 
-Si la aplicación no funciona en el puerto correcto:
+### Si ves en los logs: "Local: http://localhost:3000" (puerto incorrecto)
 
-1. **Verificar configuración**:
+**Problema**: La aplicación no está usando `ecosystem.config.js`
 
+**Solución**:
+```bash
+cd /var/www/tienda-frontend
+
+# 1. Verificar si existe la configuración
+./scripts/check-port.sh
+
+# 2. Si no existe ecosystem.config.js, crearlo:
+cp ecosystem.config.template.js ecosystem.config.js
+
+# 3. Reiniciar con la configuración correcta:
+pm2 delete all
+pm2 start ecosystem.config.js
+
+# 4. Verificar:
+pm2 logs tienda-frontend
+```
+
+### Diagnóstico rápido:
+
+1. **Verificar configuración actual**:
    ```bash
-   cat ecosystem.config.js | grep PORT
+   ./scripts/check-port.sh
    ```
 
-2. **Revisar logs de PM2**:
-
+2. **Ver logs específicos**:
    ```bash
-   pm2 logs tienda-frontend
+   pm2 logs tienda-frontend | grep -E "(Local|Network|PORT)"
    ```
 
-3. **Verificar puerto en uso**:
-
+3. **Verificar puertos activos**:
    ```bash
-   netstat -tulpn | grep :3003
+   netstat -tulpn | grep :300
    ```
 
-4. **Reiniciar con configuración correcta**:
-
+4. **Reinicio completo**:
    ```bash
    pm2 delete all
-   pm2 start ecosystem.config.js
+   pm2 start ecosystem.config.js --env production
+   pm2 save
    ```
 
 ## 📝 Notas Importantes

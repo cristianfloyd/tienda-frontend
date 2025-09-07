@@ -63,17 +63,24 @@ pm2 stop all || true
 pm2 delete all || true
 
 # Check if ecosystem.config.js exists
+echo "🔍 Checking PM2 configuration..."
 if [ -f "ecosystem.config.js" ]; then
+    echo "✅ ecosystem.config.js found, using PM2 configuration"
+    echo "🔧 Configuration preview:"
+    head -15 ecosystem.config.js
     echo "🚀 Starting application with ecosystem.config.js..."
-    pm2 start ecosystem.config.js
+    pm2 start ecosystem.config.js --env production
 else
-    echo "⚠️  ecosystem.config.js not found, creating from template..."
+    echo "⚠️  ecosystem.config.js not found in $(pwd)"
     if [ -f "ecosystem.config.template.js" ]; then
+        echo "📋 Creating ecosystem.config.js from template..."
         cp ecosystem.config.template.js ecosystem.config.js
+        echo "✅ Created ecosystem.config.js"
         echo "🚀 Starting application with ecosystem.config.js..."
-        pm2 start ecosystem.config.js
+        pm2 start ecosystem.config.js --env production
     else
-        echo "🚀 Starting application with npm..."
+        echo "❌ No template found, falling back to npm start..."
+        echo "⚠️  WARNING: This will NOT use port $PORT configuration!"
         pm2 start npm --name $PROJECT_NAME -- start
     fi
 fi
@@ -89,15 +96,24 @@ sleep 3
 
 # Check if application is actually running on the correct port
 echo ""
-echo "🔍 Port verification:"
-if lsof -i :$PORT > /dev/null 2>&1; then
-    echo "✅ Application is running on port $PORT"
-    echo "🌐 URL: http://localhost:$PORT"
-else
-    echo "⚠️  Warning: No process found on port $PORT"
-    echo "📊 Check PM2 logs for issues:"
-    pm2 logs --lines 10
-fi
+echo "🔍 Port verification (expecting port $PORT):"
+
+# Check multiple common ports
+for port in 3000 3001 3002 3003; do
+    if lsof -i :$port > /dev/null 2>&1; then
+        if [ "$port" = "$PORT" ]; then
+            echo "✅ Application is running on CORRECT port $port"
+        else
+            echo "⚠️  Application is running on port $port (expected $PORT)"
+        fi
+        echo "🌐 URL: http://localhost:$port"
+    fi
+done
+
+# Show Next.js specific info from logs
+echo ""
+echo "📊 Next.js startup info:"
+pm2 logs tienda-frontend --lines 5 | grep -E "(Local:|Network:|Ready)" || echo "No Next.js startup logs found"
 
 echo ""
 echo "✅ Deployment completed!"
