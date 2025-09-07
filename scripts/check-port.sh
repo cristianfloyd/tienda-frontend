@@ -43,10 +43,15 @@ else
     fi
 fi
 
-# Check Next.js logs
+# Check Next.js logs (usando archivo de log directamente)
 echo ""
 echo "📊 Logs recientes de Next.js:"
-pm2 logs tienda-frontend --lines 5 | grep -E "(Local:|Network:|Ready|Starting|PORT)" || echo "No se encontraron logs específicos"
+if [ -f ~/.pm2/logs/tienda-frontend-out.log ]; then
+    tail -10 ~/.pm2/logs/tienda-frontend-out.log | grep -E "(Local:|Network:|Ready|Starting|PORT)" || echo "No se encontraron logs específicos en los últimos 10 líneas"
+else
+    echo "Archivo de log no encontrado, usando pm2 logs..."
+    pm2 logs tienda-frontend --lines 3 --nostream 2>/dev/null || echo "No se pudieron obtener logs"
+fi
 
 echo ""
 echo "🎯 Comandos útiles:"

@@ -110,10 +110,14 @@ for port in 3000 3001 3002 3003; do
     fi
 done
 
-# Show Next.js specific info from logs
+# Show Next.js specific info from logs (no interactive)
 echo ""
 echo "📊 Next.js startup info:"
-pm2 logs tienda-frontend --lines 5 | grep -E "(Local:|Network:|Ready)" || echo "No Next.js startup logs found"
+if [ -f ~/.pm2/logs/tienda-frontend-out.log ]; then
+    tail -5 ~/.pm2/logs/tienda-frontend-out.log | grep -E "(Local:|Network:|Ready)" || echo "No Next.js startup info found"
+else
+    echo "Log file not found, check manually with: pm2 logs tienda-frontend"
+fi
 
 echo ""
 echo "✅ Deployment completed!"
