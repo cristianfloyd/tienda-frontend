@@ -36,6 +36,7 @@ fi
 
 # Install dependencies (optimized for npm 10)
 echo "📦 Installing dependencies..."
+# We need devDependencies for build (like babel-plugin-react-compiler)
 npm ci --ignore-scripts --silent --no-audit --no-fund --prefer-offline 2>/dev/null || npm ci --ignore-scripts
 
 # Build the application

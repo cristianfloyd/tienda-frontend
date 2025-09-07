@@ -29,6 +29,7 @@
     "next": "15.5.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "babel-plugin-react-compiler": "^19.1.0-rc.3",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4"
   },
@@ -41,7 +42,6 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "babel-plugin-react-compiler": "^19.1.0-rc.3",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
     "husky": "^9.1.7",
