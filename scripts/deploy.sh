@@ -34,13 +34,9 @@ else
     git reset --hard origin/main
 fi
 
-# Install dependencies
+# Install dependencies (optimized for npm 10)
 echo "📦 Installing dependencies..."
-npm ci --omit=dev --ignore-scripts
-
-# Install express for webhook server
-echo "📦 Installing webhook dependencies..."
-npm install express
+npm ci --ignore-scripts --silent --no-audit --no-fund --prefer-offline 2>/dev/null || npm ci --ignore-scripts
 
 # Build the application
 echo "🔨 Building application..."

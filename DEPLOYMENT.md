@@ -70,9 +70,14 @@ El webhook server (`webhook-server.js`) se ejecuta en el puerto **3002** y:
 - Ejecuta automáticamente `deploy.sh`
 - Ahora respetará la configuración de puerto en `ecosystem.config.js`
 
-## 🔧 Variables de Entorno Requeridas
+## 🔧 Requerimientos del Sistema
 
-En el servidor de producción:
+### Servidor de producción:
+- **Node.js**: v22.x+ 
+- **npm**: v10.x+
+- **PM2**: Para gestión de procesos
+
+### Variables de Entorno:
 
 ```bash
 # En ecosystem.config.js:

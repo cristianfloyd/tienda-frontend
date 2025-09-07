@@ -6,6 +6,12 @@
 echo "⚡ Quick Check - tienda-frontend"
 echo "================================"
 
+# System info
+echo "🖥️  Sistema:"
+echo "  Node: $(node --version)"
+echo "  npm: $(npm --version)"
+echo "  PM2: $(pm2 --version 2>/dev/null || echo 'no instalado')"
+
 # PM2 Status
 echo "📊 PM2 Status:"
 pm2 list | grep tienda-frontend || echo "❌ tienda-frontend no encontrado en PM2"
