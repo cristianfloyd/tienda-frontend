@@ -10,7 +10,7 @@ PROJECT_NAME="tienda-frontend"
 DEPLOY_PATH="/var/www/$PROJECT_NAME"
 REPO_URL="https://github.com/cristianfloyd/tienda-frontend.git"  # Cambiar por tu repo real
 NODE_ENV="production"
-PORT=3001
+PORT=3003
 
 echo "🚀 Starting deployment for $PROJECT_NAME..."
 
@@ -57,19 +57,52 @@ else
     echo "⚠️  No environment file found. Make sure to configure environment variables."
 fi
 
-# Stop existing PM2 process
+# Stop existing PM2 processes
 echo "🛑 Stopping existing processes..."
-pm2 stop $PROJECT_NAME || true
-pm2 delete $PROJECT_NAME || true
+pm2 stop all || true
+pm2 delete all || true
 
-# Start application with PM2
-echo "🚀 Starting application..."
-pm2 start npm --name $PROJECT_NAME -- start
+# Check if ecosystem.config.js exists
+if [ -f "ecosystem.config.js" ]; then
+    echo "🚀 Starting application with ecosystem.config.js..."
+    pm2 start ecosystem.config.js
+else
+    echo "⚠️  ecosystem.config.js not found, creating from template..."
+    if [ -f "ecosystem.config.template.js" ]; then
+        cp ecosystem.config.template.js ecosystem.config.js
+        echo "🚀 Starting application with ecosystem.config.js..."
+        pm2 start ecosystem.config.js
+    else
+        echo "🚀 Starting application with npm..."
+        pm2 start npm --name $PROJECT_NAME -- start
+    fi
+fi
+
 pm2 save
 
 # Show status
+echo "📊 PM2 Process Status:"
 pm2 status
 
-echo "✅ Deployment completed successfully!"
-echo "🌐 Application should be running on port $PORT"
-echo "📊 Check logs with: pm2 logs $PROJECT_NAME"
+# Wait a moment for processes to fully start
+sleep 3
+
+# Check if application is actually running on the correct port
+echo ""
+echo "🔍 Port verification:"
+if lsof -i :$PORT > /dev/null 2>&1; then
+    echo "✅ Application is running on port $PORT"
+    echo "🌐 URL: http://localhost:$PORT"
+else
+    echo "⚠️  Warning: No process found on port $PORT"
+    echo "📊 Check PM2 logs for issues:"
+    pm2 logs --lines 10
+fi
+
+echo ""
+echo "✅ Deployment completed!"
+echo "📋 Useful commands:"
+echo "   🔍 Check status: pm2 status"
+echo "   📊 View logs: pm2 logs $PROJECT_NAME"
+echo "   🔄 Restart: pm2 restart ecosystem.config.js"
+echo "   🛑 Stop: pm2 stop all"
