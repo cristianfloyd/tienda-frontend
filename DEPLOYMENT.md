@@ -13,7 +13,9 @@ La aplicación se configuraba para ejecutarse en el puerto **3003** mediante `ec
 ### ✅ Solución Implementada
 
 1. **Modificado `scripts/deploy.sh`**:
-   - Ahora usa `pm2 start ecosystem.config.js` en lugar de `pm2 start npm`
+   - Ahora usa `pm2 start ecosystem.config.js --only tienda-frontend` en lugar de `pm2 start npm`
+   - **CRÍTICO**: Ya no ejecuta `pm2 stop all` que mataba el webhook-server durante el despliegue
+   - Solo detiene `tienda-frontend` específicamente para preservar el webhook
    - Verifica si existe `ecosystem.config.js` y si no, lo crea desde el template
    - Incluye verificación del puerto después del despliegue
 
@@ -90,6 +92,19 @@ Después de cada despliegue, el script verificará:
 3. ✅ Estado de todos los servicios
 
 ## 🚨 Solución de Problemas
+
+### 🛑 CRÍTICO: Despliegue se detiene tras "pm2 stop all"
+
+**Síntomas**: 
+```
+PM2 | Stopping app:webhook-server id:1
+PM2 | App [webhook-server:1] exited with code [0] via signal [SIGINT]
+# Y se queda colgado aquí
+```
+
+**Problema**: `pm2 stop all` mata el webhook-server que ejecuta el despliegue
+
+**Solución**: ✅ Ya corregido en el script - ahora solo detiene `tienda-frontend`
 
 ### Si ves en los logs: "Local: http://localhost:3000" (puerto incorrecto)
 

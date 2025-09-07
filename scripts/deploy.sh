@@ -57,10 +57,11 @@ else
     echo "⚠️  No environment file found. Make sure to configure environment variables."
 fi
 
-# Stop existing PM2 processes
+# Stop existing PM2 processes (but NOT webhook-server)
 echo "🛑 Stopping existing processes..."
-pm2 stop all || true
-pm2 delete all || true
+echo "⚠️  Preserving webhook-server to avoid killing deployment process"
+pm2 stop tienda-frontend || true
+pm2 delete tienda-frontend || true
 
 # Check if ecosystem.config.js exists
 echo "🔍 Checking PM2 configuration..."
@@ -68,16 +69,16 @@ if [ -f "ecosystem.config.js" ]; then
     echo "✅ ecosystem.config.js found, using PM2 configuration"
     echo "🔧 Configuration preview:"
     head -15 ecosystem.config.js
-    echo "🚀 Starting application with ecosystem.config.js..."
-    pm2 start ecosystem.config.js --env production
+    echo "🚀 Starting tienda-frontend from ecosystem.config.js..."
+    pm2 start ecosystem.config.js --only tienda-frontend --env production
 else
     echo "⚠️  ecosystem.config.js not found in $(pwd)"
     if [ -f "ecosystem.config.template.js" ]; then
         echo "📋 Creating ecosystem.config.js from template..."
         cp ecosystem.config.template.js ecosystem.config.js
         echo "✅ Created ecosystem.config.js"
-        echo "🚀 Starting application with ecosystem.config.js..."
-        pm2 start ecosystem.config.js --env production
+        echo "🚀 Starting tienda-frontend from ecosystem.config.js..."
+        pm2 start ecosystem.config.js --only tienda-frontend --env production
     else
         echo "❌ No template found, falling back to npm start..."
         echo "⚠️  WARNING: This will NOT use port $PORT configuration!"
